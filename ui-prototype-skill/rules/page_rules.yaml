@@ -1,0 +1,46 @@
+version: 1
+
+# 本 Skill 的 must_ask：每轮开工前必须问一次技术栈（默认推荐纯 HTML 单文件）。
+# 除此之外的问题能不问就不问——原型是用来让人 review 的，不是用来收集信息的。
+must_ask:
+  - id: MA-001
+    question: 原型用什么形态产出（纯 HTML 单文件 / Vue / React）
+    recommendation: html
+    recommendation_reason: 零构建、双击即开，review 一轮最快；代价是复杂状态管理写得笨
+    when_project_has_stack: 把推荐值换成项目已有的那个栈，但仍要让用户有机会改
+
+# 三档输入。上一档拿到就不再往下走。
+input_resolution:
+  - order: 1
+    source: 契约文件 .project/design/tech/interfaces.yaml（核对 produced_by）
+    on_hit: upstream.interfaces.status = found，记 fields_read
+  - order: 2
+    source: 用户原始输入——对话里的描述、截图、贴出的接口片段
+    on_hit: status = not_found，但**必须记一条 gap**说明没对齐什么
+  - order: 3
+    source: 提问
+    on_hit: 只问 MA-001；页面细节不问，先做出来让人看
+
+# 上游缺失时的降级。降级本身可以接受，静默降级不行。
+degradation:
+  - 接口契约不存在 → 页面只做交互与布局，状态分支按用户描述来，
+    并在 gaps 里记 kind=interface
+  - 接口契约存在但某些 error_case 没做进页面 → 逐条记 kind=state
+  - 需求卡不存在 → 从用户描述推导出页面要覆盖的东西，并记 kind=requirement
+  - 上述任何一种没记进 gaps → validate_bundle.py 会拦下（上游缺失必须有 gap）
+
+# 页面本身的要求
+page_requirements:
+  - 能直接打开：默认不依赖构建、不依赖本地服务；数据可以 mock 在内存里
+  - 触发得到：每个展示的错误态都要有一条能走到它的输入路径，
+    光把错误文案画在页面上不算
+  - 数值会变：涉及计数、列表、状态切换的，点了要真的变
+  - 留白要写：没覆盖到的交互状态列进 gaps 或页面底部，不许默默略过
+  - 不许伪装：不要写生产级状态管理，也不要接真接口——这是原型不是实现
+
+# 明确不做
+do_not:
+  - 不产出最终视觉稿（配色、间距、动效的最终定稿由用户 review 决定）
+  - 不改上游文件（接口契约、需求卡一律只读）
+  - 不写实现代码（那是 dev-companion 的事）
+  - 不做技术选型（除前端栈外）——选型归 tech-design-skill

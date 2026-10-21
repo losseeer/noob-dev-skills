@@ -1,0 +1,36 @@
+produced_by: ui-prototype-skill
+version: 1
+as_of: 2026-10-21
+project: shortlink
+upstream:
+  interfaces:
+    status: found
+    ref: .project/design/tech/interfaces.yaml
+    fields_read: [IF-001, IF-002, IF-003]
+    note: 页面的成功与错误分支按这三个接口的错误码对齐
+  requirements:
+    status: found
+    ref: .project/requirements/
+    fields_read: [REQ-001, REQ-003]
+stack: html
+stack_rationale: 项目里没有既有前端栈，用户选了纯 HTML 单文件——零构建，双击就能 review
+entry: index.html
+pages:
+  - name: 短链生成页
+    file: index.html
+    covers: [REQ-001, AC-001, AC-002, AC-011, AC-020]
+    states_shown:
+      - 创建成功返回短码
+      - 重复提交命中复用分支
+      - 非法 URL 报 400_INVALID_URL
+      - 访问未知短码只报 404 而不重定向
+      - 每次访问点击数加一
+    review_status: pending
+    note: 数据存在内存里，刷新即清空；不接后端
+gaps:
+  - kind: state
+    ref: IF-003
+    reason: 统计接口查询不存在短码的失败分支，页面没有对应的交互表达
+    deferred_to: 等用户 review 后再决定补不补
+open_questions: []
+status: draft

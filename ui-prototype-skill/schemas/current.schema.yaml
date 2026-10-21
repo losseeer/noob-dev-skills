@@ -1,0 +1,131 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "https://example.local/ui-prototype/current.schema.yaml"
+title: UI prototype index
+type: object
+additionalProperties: false
+required:
+  - version
+  - as_of
+  - project
+  - upstream
+  - stack
+  - pages
+  - gaps
+  - status
+properties:
+  # 产生本产物的 skill 名。optional——老产物没有这个字段仍须通过校验，
+  # 所以这条是向后兼容的；下游 skill 靠它确认这是本包契约，而不是路径撞巧的同名文件。
+  produced_by:
+    const: ui-prototype-skill
+  version:
+    const: 1
+  as_of:
+    type: string
+    format: date
+  project:
+    type: string
+    minLength: 1
+  upstream:
+    $ref: "#/$defs/upstream_refs"
+  stack:
+    enum: [html, vue, react]
+  stack_rationale:
+    type: string
+  entry:
+    type: string
+    description: 打开原型的第一个文件
+  pages:
+    type: array
+    minItems: 1
+    items:
+      $ref: "#/$defs/page"
+  gaps:
+    type: array
+    items:
+      $ref: "#/$defs/gap"
+  open_questions:
+    type: array
+    items:
+      $ref: "#/$defs/open_question"
+  review_ref:
+    type: string
+  status:
+    enum: [draft, reviewed]
+$defs:
+  upstream_refs:
+    type: object
+    additionalProperties: false
+    required: [interfaces]
+    properties:
+      interfaces:
+        $ref: "#/$defs/upstream_ref"
+      requirements:
+        $ref: "#/$defs/upstream_ref"
+  upstream_ref:
+    type: object
+    additionalProperties: false
+    required: [status]
+    properties:
+      status:
+        enum: [found, not_found, skipped]
+      ref:
+        type: string
+      fields_read:
+        type: array
+        items:
+          type: string
+      note:
+        type: string
+  page:
+    type: object
+    additionalProperties: false
+    required: [name, file, covers, review_status]
+    properties:
+      name:
+        type: string
+        minLength: 1
+      file:
+        type: string
+        minLength: 1
+      covers:
+        type: array
+        minItems: 1
+        items:
+          type: string
+      states_shown:
+        type: array
+        items:
+          type: string
+          minLength: 1
+      review_status:
+        enum: [pending, reviewed, needs_change]
+      note:
+        type: string
+  gap:
+    type: object
+    additionalProperties: false
+    required: [kind, ref, reason]
+    properties:
+      kind:
+        enum: [interface, acceptance, state, requirement]
+      ref:
+        type: string
+        minLength: 1
+      reason:
+        type: string
+        minLength: 1
+      deferred_to:
+        type: string
+  open_question:
+    type: object
+    additionalProperties: false
+    required: [id, question]
+    properties:
+      id:
+        type: string
+        pattern: "^Q[0-9]+$"
+      question:
+        type: string
+        minLength: 1
+      recommendation:
+        type: string

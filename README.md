@@ -6,22 +6,24 @@
 |---|---|---|---|
 | ① 定位 | `project-positioning-skill` | **做不做**——项目类型、等级、范围、这个需求该不该做 | `.project/positioning/*.yaml` |
 | ② 需求 | `requirement-analysis-skill` | **做成什么样才算完成**——需求卡、验收标准、质量门禁 | `.project/requirements/*.yaml` |
-| ③ 方案设计 | `solution-design-skill` | **怎么解**——技术选型、数据模型、接口契约、UI 原型 | `.project/design/` |
-| ④ 开发 | `dev-companion-skill` | **怎么一步步做下去**——决策留痕、进度可接续 | `dev-tree/TREE.md` + `versions/*.md` |
+| ③ 技术设计 | `tech-design-skill` | **怎么解**——技术选型、架构、数据模型、接口契约 | `.project/design/` |
+| ④ UI 原型 | `ui-prototype-skill` | **界面长什么样、点了会怎样**——可交互页面供人工 review | `.project/prototype/` |
+| ⑤ 开发 | `dev-companion-skill` | **怎么一步步做下去**——决策留痕、进度可接续 | `dev-tree/TREE.md` + `versions/*.md` |
 
 一句话分工：
 
-> 定位决定**做不做**，需求决定**做成什么样**，方案设计决定**怎么解**，
-> 开发陪伴负责**真的做下去并记得住**。
+> 定位决定**做不做**，需求决定**做成什么样**，技术设计决定**怎么解**，
+> UI 原型决定**界面长什么样**，开发陪伴负责**真的做下去并记得住**。
 
-## 四个 Skill 彼此独立
+## 五个 Skill 彼此独立
 
-它们是四个**完整的 Agent Skill**，都能单独安装、单独使用。本仓库只是把它们放在一处分发与维护。
+它们是五个**完整的 Agent Skill**，都能单独安装、单独使用。本仓库只是把它们放在一处分发与维护。
 
-四者**只通过文件约定协作，不互相调用**——这是刻意的设计：
+五者**只通过文件约定协作，不互相调用**——这是刻意的设计：
 
 - 定位 Skill 不依赖需求 Skill，需求 Skill 也不依赖定位 Skill（定位卡存在时只作上下文）。
-- 方案设计 Skill 只读上游产物，不存在时记 `not_found` 并继续，不要求用户先补齐。
+- 技术设计 Skill 只读上游产物，不存在时记 `not_found` 并继续，不要求用户先补齐。
+- UI 原型 Skill 读技术设计的接口契约；读不到就按用户描述做，并把没对齐的部分记进 `gaps`。
 - 任一环节缺失，后面的 Skill 都能独立工作，只是信息少一些。
 
 所以你可以只装其中一个。
@@ -41,8 +43,9 @@ noob-dev-skills/
 ├── README.md                      # 本文件
 ├── project-positioning-skill/     # ① 项目定位
 ├── requirement-analysis-skill/    # ② 需求分析
-├── solution-design-skill/         # ③ 方案设计（技术选型 + UI 原型）
-└── dev-companion-skill/           # ④ 开发陪伴（原 noob-dev）
+├── tech-design-skill/             # ③ 技术设计（原 solution-design-skill）
+├── ui-prototype-skill/            # ④ UI 原型
+└── dev-companion-skill/           # ⑤ 开发陪伴（原 noob-dev）
 ```
 
 各 Skill 内部自带 `SKILL.md`、`prompts/` 或 `references/`、`schemas/`、`examples/`、`scripts/`。

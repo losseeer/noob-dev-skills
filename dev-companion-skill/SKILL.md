@@ -1,6 +1,6 @@
 ---
 name: dev-companion-skill
-description: "Build a software project together with a beginner developer. Three capabilities: (A) always-on development status tree at dev-tree/TREE.md; (B) on demand plain-language explanation with no undefined jargon; (C) on demand action-first output shaping. Use when the user builds with an agent and asks 解释 / 看不懂 / 什么意思 / 用大白话 / 我是新手, says 直接给我下一步 / 别废话 / 太长了 / 开 adhd 模式, or wants a resumable plan that survives across sessions. Owns plain-language explanation even when nothing is being built - answer with B, no tree. Do NOT use for deciding scope or positioning, writing requirement cards, choosing technology, or producing design artifacts and UI prototypes - those belong to project-positioning-skill, requirement-analysis-skill, and solution-design-skill respectively. A UI prototype is a reviewed deliverable registered in .project/design/current.yaml, not a disposable script - route it to solution-design-skill. For genuinely disposable one-off scripts, answer but skip the tree."
+description: "Build a software project together with a beginner developer. Three capabilities: (A) always-on development status tree at dev-tree/TREE.md; (B) on demand plain-language explanation with no undefined jargon; (C) on demand action-first output shaping. Use when the user builds with an agent and asks 解释 / 看不懂 / 什么意思 / 用大白话 / 我是新手, says 直接给我下一步 / 别废话 / 太长了 / 开 adhd 模式, or wants a resumable plan that survives across sessions. Owns plain-language explanation even when nothing is being built - answer with B, no tree. Do NOT use for deciding scope or positioning, writing requirement cards, choosing technology, or producing design artifacts - those belong to project-positioning-skill, requirement-analysis-skill, and tech-design-skill respectively; UI prototypes belong to ui-prototype-skill. A UI prototype is a reviewed deliverable registered in .project/prototype/current.yaml, not a disposable script - route it to ui-prototype-skill. For genuinely disposable one-off scripts, answer but skip the tree."
 agent_created: true
 ---
 
@@ -41,7 +41,7 @@ agent_created: true
 **Do NOT use：**
 
 - **真正写完就删的一次性脚本** → 不建树（用户明确要除外）。
-  **UI 原型 / demo 不属于这一类**——它们是 `solution-design-skill` 的交付物，登记在
+  **UI 原型 / demo 不属于这一类**——它们是 `tech-design-skill` 的交付物，登记在
   `.project/design/current.yaml` 里、要过 review，交给那个 Skill，别当成一次性脚本拦掉。
 - 用户已经明确说「别记了，直接做」→ 关闭 A 的状态树更新，但保留已有 TREE.md 不动。
 - 决定范围与定位、写需求卡、做技术选型与产出设计文档 → 分别归另外三个 Skill，本 Skill 不接。
@@ -57,9 +57,9 @@ agent_created: true
 | 情形 | 归属 |
 |---|---|
 | 「这是在干嘛 / 为什么这样写」——只解释不落文件 | **本 Skill**，能力 B，不建树 |
-| 「下一步干嘛」「先做哪个任务」 | **本 Skill**（能力 C）；但选型还没定的先让 `solution-design-skill` 定 |
-| 「用 A 还是 B 实现」——技术选型本身 | `solution-design-skill`，产出 `stack.yaml` + ADR |
-| 「做个能点的 demo / 画个原型」 | `solution-design-skill`，不是一次性脚本 |
+| 「下一步干嘛」「先做哪个任务」 | **本 Skill**（能力 C）；但选型还没定的先让 `tech-design-skill` 定 |
+| 「用 A 还是 B 实现」——技术选型本身 | `tech-design-skill`，产出 `stack.yaml` + ADR |
+| 「做个能点的 demo / 画个原型」 | `ui-prototype-skill`，不是一次性脚本 |
 | 「这个需求该不该做 / 项目要不要升级定位」 | `project-positioning-skill` |
 | 「这个需求怎么写 / 验收标准」 | `requirement-analysis-skill` |
 
