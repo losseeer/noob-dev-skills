@@ -8,6 +8,26 @@
 
 `rules/stack_rules.yaml`（面清单、默认推荐值、约束绑定）与 `templates/stack.yaml.tpl`。
 
+## 先判定哪些必须问
+
+按 `rules/stack_rules.yaml` 的 `question_policy.ask_when` 逐条检查。命中就生成待问项，
+写进 `current.yaml` 的 `open_questions`（每条带 `recommendation` 与 `blocks`），
+**先不写进 `stack.yaml`**——没答复就落盘等于把未定当成已定。
+
+最常命中的是 `never_assume_when_missing` 那三个面：`storage` / `deployment` / `auth`。
+判据是**读不读得到**：
+
+| 情况 | 处置 |
+|---|---|
+| 从用户项目里读得到既有栈（`docker-compose.yml`、数据库连接串、部署配置） | 标 `user_choice` 或 `constraint`，**不问** |
+| 读不到 | **必须问**，不得写成 `basis: assumption` |
+
+提问格式与另外三个 Skill 保持一致：每轮 ≤3 题、每题 2-3 个候选并写清代价、
+明确标推荐值、用户不响应时执行推荐值并在 `open_questions` 里记一句
+「按推荐值处理，待用户确认」。**不要静默当成用户已确认。**
+
+`blocking_until_answered: true`——这些项没答复前，方案不得进步骤 6 的 review。
+
 ## 做什么
 
 按 `area_defaults` 逐个面走。**先读用户现有项目**，有既定技术栈就跟随（省一轮决策），

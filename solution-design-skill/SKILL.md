@@ -104,6 +104,15 @@ python <本 skill 目录>/scripts/validate_bundle.py --selftest
 ### 4. 技术选型
 
 读取 `prompts/04_tech_selection.md` 与 `templates/stack.yaml.tpl`。
+
+**先判定哪些必须问**：`storage` / `deployment` / `auth` 三个面读不到既有栈时**必须问用户**，
+不得写成 `basis: assumption`（见 `rules/stack_rules.yaml` 的 `never_assume_when_missing`，
+`validate_bundle.py` 会检查这一条）。待问项先写进 `current.yaml` 的 `open_questions`，
+未答复前不落盘到 `stack.yaml`，也不得进步骤 6 的 review。
+
+其余按 `question_policy.do_not_ask`：数据模型、接口、异常分支、目录结构都从需求推导，
+不问；上游定位卡的 22 个维度只补齐影响选型的那几项，不重跑一遍定位。
+
 候选 ≤ 3 且**必须给推荐值**（用户超时或未授权时默认执行推荐值）。
 非平凡选型写 ADR 到 `decisions/`，必须含「代价」与「复审条件」两节。
 

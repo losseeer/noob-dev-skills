@@ -35,6 +35,11 @@ checks:
     item: 涉及 UI 时页面能落到至少一条 REQ
     passed: true
     evidence_ref: current.yaml prototype.pages
+  - id: C8
+    item: never_assume_when_missing 里的选型面没有被引擎默认掉
+    passed: true
+    evidence_ref: scripts/validate_bundle.py
+    note: storage 走的是 constraint 型（源自 budget=low），不是 assumption；deployment 与 auth 本轮未做选型，也没有写成假设
 findings:
   - severity: minor
     description: Q1（短码别名）未答复，当前按不支持实现

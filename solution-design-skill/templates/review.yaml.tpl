@@ -30,6 +30,11 @@ checks:
     item: 涉及 UI 时页面能落到至少一条 REQ
     passed: false
     note: 无 UI 时标 true 并注明不适用
+  - id: C8
+    item: never_assume_when_missing 里的选型面没有被引擎默认掉
+    passed: false
+    evidence_ref: scripts/validate_bundle.py
+    note: storage / deployment / auth 写成 basis: assumption 即为失败，以脚本输出为依据
 findings:
   - severity: major                 # blocker / major / minor
     description: ""

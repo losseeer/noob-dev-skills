@@ -8,6 +8,40 @@ selection_policy:
   every_selection_needs_basis: true
   # basis=assumption 时必须写 why_assumed + revisit_when（schema 强制）
 
+  # 这三个面不允许写成 assumption。它们的共同点是：迁移成本极高，且偏好只有用户知道
+  # （例如「必须能本地跑」「我只用 Postgres」「没有运维人手」）。
+  # 读不到既有栈时，必须生成待问项，不许静默默认。
+  # scripts/validate_bundle.py 会读这一项做检查，改这里就等于改校验。
+  never_assume_when_missing: [storage, deployment, auth]
+
+# 什么时候必须停下来问用户，而不是自己定。
+question_policy:
+  max_per_round: 3
+  must_provide_recommendation: true
+  record_in: open_questions
+  blocking_until_answered: true
+
+  ask_when:
+    - id: QP-001
+      when: 命中 never_assume_when_missing，且从用户项目里读不到既有技术栈
+      ask: 该面用哪个方案，附 2-3 个候选与代价
+    - id: QP-002
+      when: 上游 constraints 缺失，而缺失项会改变选型结论
+      ask: 直接问该约束，而不是自己假定一个
+    - id: QP-003
+      when: 与上游 constraints 冲突，且本 Skill 无权自行放宽
+      ask: 要换选型（resolved）、接受风险（accepted_risk），还是回去重定位
+    - id: QP-004
+      when: 需要 UI 原型但不知道用什么技术栈
+      ask: 纯 HTML 单文件 / Vue / React，默认推荐前者
+
+  do_not_ask:
+    - 数据模型的字段与索引——从需求的数据约束推导
+    - 接口清单与错误分支——从验收标准与异常流程推导
+    - 目录结构与模块边界——方案的产出物，不是提问项
+    - 上游定位卡的完整 22 个维度——那是 project-positioning-skill 的流程，
+      本 Skill 只补齐影响选型的那几项，不重跑一遍定位
+
 # 每个选型面的推荐默认值。用户项目里已有技术栈时，一律跟随现有栈，不用下面的默认值。
 area_defaults:
   - area: language

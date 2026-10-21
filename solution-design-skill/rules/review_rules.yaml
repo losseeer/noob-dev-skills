@@ -23,6 +23,10 @@ checks:
   - id: C7
     item: 涉及 UI 时，每个页面能落到至少一条 REQ
     how: current.yaml prototype.pages[].covers；没有 prototype 时该项标 passed 并注明不适用
+  - id: C8
+    item: never_assume_when_missing 里的选型面没有被引擎默认掉
+    how: storage / deployment / auth 若写成 basis: assumption 即为失败；
+         跑 scripts/validate_bundle.py 会拦住，review 里的这一项以脚本输出为依据
 
 decision_rules:
   approve: 七项全 passed 且无 blocker → status_after: reviewed

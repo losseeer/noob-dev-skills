@@ -111,6 +111,30 @@ def check_stack_selections(docs: dict) -> list[str]:
     return failures
 
 
+def never_assume_areas() -> set[str]:
+    """从 rules/stack_rules.yaml 读，避免规则与检查各写一份后漂移。"""
+    path = Path(__file__).resolve().parents[1] / "rules" / "stack_rules.yaml"
+    if not path.exists():
+        return set()
+    policy = (load_yaml(path) or {}).get("selection_policy") or {}
+    return set(policy.get("never_assume_when_missing") or [])
+
+
+def check_never_assume(docs: dict) -> list[str]:
+    areas = never_assume_areas()
+    if not areas:
+        return []
+    failures: list[str] = []
+    for selection in (docs.get("stack") or {}).get("selections") or []:
+        area = selection.get("area")
+        if area in areas and selection.get("basis") == "assumption":
+            failures.append(
+                f"stack/{selection.get('id')}: area '{area}' is on "
+                "never_assume_when_missing, so it must be asked rather than assumed"
+            )
+    return failures
+
+
 def check_prototype_files(docs: dict) -> list[str]:
     current = docs.get("current") or {}
     proto = current.get("prototype") or {}
@@ -152,6 +176,7 @@ ALL_CHECKS: list[Callable[[dict], list[str]]] = [
     check_decision_refs,
     check_acceptance_coverage,
     check_stack_selections,
+    check_never_assume,
     check_prototype_files,
     check_assumption_followthrough,
 ]
@@ -408,6 +433,19 @@ def _all_selftest_cases() -> list[tuple[str, dict, list[str]]]:
             "assumption without mitigation should fail",
             _mutate(current=unmitigated),
             ["ASM-001"],
+        )
+    )
+
+    assumed_storage = copy.deepcopy(BASE_STACK)
+    assumed_storage["selections"][0]["basis"] = "assumption"
+    assumed_storage["selections"][0].pop("source_ref", None)
+    assumed_storage["selections"][0]["why_assumed"] = "读不到既有栈"
+    assumed_storage["selections"][0]["revisit_when"] = "出现并发写时"
+    cases.append(
+        (
+            "storage assumed instead of asked should fail",
+            _mutate(stack=assumed_storage),
+            ["never_assume", "storage"],
         )
     )
 
