@@ -1,3 +1,4 @@
+produced_by: requirement-analysis-skill
 id: REQ-010
 title: 导出月度账单 PDF
 version: v0.1

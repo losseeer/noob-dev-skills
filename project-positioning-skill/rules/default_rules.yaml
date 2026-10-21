@@ -1,5 +1,8 @@
 version: 1
 policy:
+  # 本 Skill 的 must_ask 就是下面这一行：这些维度禁止默认值，所以缺了只能问用户。
+  # 四个 Skill 各自的 must_ask 命名不同（需求的在 coverage_rules 的 handling，
+  # 方案设计的叫 never_assume_when_missing），含义相同：缺失且提取不到时必须提问。
   precedence: "current_user_statement > existing_positioning > repository_fact > inference > user_accepted_default"
   never_default_when_missing: [users, criticality, data, charging, compliance, scale, enterprise]
   never_default_when_conflict: true

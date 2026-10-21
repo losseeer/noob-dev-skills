@@ -4,13 +4,28 @@
 
 ## 输入侧：可选读取
 
-检查 `.project/positioning/current.yaml`：
+检查 `.project/positioning/current.yaml`。先核对来源，再决定怎么补：
 
 | 情况 | 处理 |
 |---|---|
-| 存在 | 只读 `summary` / `constraints` / `glossary`，覆盖矩阵 `positioning_context: read` |
-| 不存在 | `positioning_context: not_found`，**不阻塞**，正常执行 |
-| 存在但读失败/格式不支持 | `positioning_context: skipped`，在 warnings 里写明原因，不阻塞 |
+| 存在，且 `produced_by` 是 `project-positioning-skill` | 只读 `summary` / `constraints` / `glossary`，`positioning_context: read` |
+| 存在，但 `produced_by` 缺失或不是本包 skill 名 | **降为 `skipped`**，warnings 写「路径相同但来源未确认」，不阻塞 |
+| 不存在 | `positioning_context: not_found`，从用户原始输入提取项目背景，不阻塞 |
+| 存在但读失败 / 格式不支持 | `positioning_context: skipped`，warnings 写明原因，不阻塞 |
+
+### 上游缺失时，为什么不去问用户
+
+本 Skill 的输入是「用户描述的需求」，定位卡只是**补充上下文**（术语、硬约束、背景）。
+它缺失并不妨碍写出一张合格的需求卡。
+
+真正会卡住本 Skill 的是需求自身的 P0 缺失（`actor` / `goal` / `trigger` / `main_flow`）
+与 `conflict`——那才是本 Skill 的 `must_ask`，由步骤 2-3 处理。
+
+反过来，若因为定位卡缺失就去问「项目是什么类型、规模多大、要不要收费」，
+等于把 `project-positioning-skill` 的流程在这里重跑一遍。那不是解耦，是重复。
+
+**不提问不等于不记录**：缺失时要在 `warnings` 里写明「本需求未对齐项目定位术语与硬约束」，
+让下游（方案设计）知道这份需求少了哪部分依据。
 
 **绝对禁止：**
 

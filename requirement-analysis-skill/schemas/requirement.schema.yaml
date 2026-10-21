@@ -22,6 +22,10 @@ required:
   - out_of_scope
   - trace
 properties:
+  # 产生本产物的 skill 名。optional——老产物没有这个字段仍须通过校验，
+  # 所以这条是向后兼容的；下游 skill 靠它确认这是本包契约，而不是路径撞巧的同名文件。
+  produced_by:
+    const: requirement-analysis-skill
   id:
     type: string
     pattern: "^REQ-[0-9]{3}$"

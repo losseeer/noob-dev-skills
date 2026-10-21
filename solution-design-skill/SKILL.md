@@ -88,8 +88,9 @@ python <本 skill 目录>/scripts/validate_bundle.py --selftest
 
 ### 1. 解析输入
 
-读取 `prompts/01_parse_input.md`。只读不提问。输出 `current.yaml` 的 `upstream` 与 `coverage` 骨架
-（每条 AC 一条，先标 `gap`）。
+读取 `prompts/01_parse_input.md`。按三档取信息：**契约文件 → 用户原始输入 → 提问**（最后这档
+只有命中 `must_ask` 才走）。契约文件要核对 `produced_by`，来源无法确认就降回原始输入。
+输出 `current.yaml` 的 `upstream` 与 `coverage` 骨架（每条 AC 一条，先标 `gap`）。
 
 ### 2. 提取约束
 

@@ -1,3 +1,4 @@
+produced_by: requirement-analysis-skill
 id: REQ-011
 title: 账单异步导出方案探针（spike）
 version: v0.1

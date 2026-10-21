@@ -1,5 +1,9 @@
 version: 1
 
+# 本 Skill 的 must_ask = 下面 handling 里所有取值是 ask / ask_one 的组合，
+# 即「P0 缺失」与「任何优先级的 conflict」。其余一律默认值加标记，不提问。
+# 上游定位卡缺失不在 must_ask 里——那是 project-positioning-skill 的流程，不在这里重跑。
+
 priorities:
   P0:
     dimensions: [actor, goal, trigger, main_flow, acceptance, data, exception, permission]

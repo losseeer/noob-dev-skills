@@ -157,8 +157,11 @@ description: Convert fuzzy ideas, user feedback, issues, chat logs, or code comm
 
 读取 `prompts/09_optional_positioning_bridge.md`。
 
-- 存在 `.project/positioning/current.yaml` → 只读 `summary` / `constraints` / `glossary`，不修改、不调用对方 Skill
-- 不存在 → 标记「定位上下文未知」，**不阻塞**
+- 存在 `.project/positioning/current.yaml` → 先核对 `produced_by` 是 `project-positioning-skill`，
+  再只读 `summary` / `constraints` / `glossary`，不修改、不调用对方 Skill
+- 存在但 `produced_by` 缺失或不是本包 skill 名 → 记 `skipped`，warnings 写明来源未确认
+- 不存在 → 记 `not_found` 并从用户原始输入提取项目背景，**不阻塞、也不因此提问**
+  （本 Skill 的 `must_ask` 是需求自身的 P0 缺失与 `conflict`，不是上游定位）
 - 检出可能影响定位的信号（支付、多租户、合规、SLA…）→ 写入 `.project/requirements/positioning_candidates.yaml`，附 `action: 建议交给项目定位 Skill 做范围门禁`
 
 ## 产物约定

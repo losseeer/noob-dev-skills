@@ -63,6 +63,10 @@ agent_created: true
 | 「这个需求该不该做 / 项目要不要升级定位」 | `project-positioning-skill` |
 | 「这个需求怎么写 / 验收标准」 | `requirement-analysis-skill` |
 
+**本 Skill 的 must_ask**：用户面临决策点时必须问（选哪个做法、先做哪个任务）——这是能力 A
+的地基，不问就没有可留痕的决策。其余信息一律从项目现状推断，推断不出来才问，且每问必带推荐值（H8）。
+上游三个 skill 的产物本 Skill 不读，因此不存在契约缺失的问题。
+
 ---
 
 ## 硬规则（Hard Rules）
