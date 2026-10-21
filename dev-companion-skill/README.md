@@ -13,12 +13,20 @@ B 和 C 可以同时开：B 管措辞深度，C 管输出形状，冲突时 C �
 C 的进度行直接读状态树的真实数字（`[2/7 已完成] · 你在：A › B › C`），
 不是让模型自己估——这是它和原版 `i-have-adhd`（ayghri/i-have-adhd, MIT）最大的不同。
 
+**首次开工（H12）**：项目里还没有 `dev-tree/TREE.md` 时，本 skill 先排一版里程碑
+（可验证产物 + 依赖顺序），问过你之后再开工。它落在 `TREE.md` 第一版，
+**不是另写一个计划文件**——两份计划会互相打架。
+**不估工期、人手、上线时间**，只写「这一期交付什么」。详见 `references/kickoff-plan.md`。
+
 ---
 
 ## 安装
 
 ```bash
-cp -r <本 skill 源目录> ~/.workbuddy/skills/dev-companion-skill
+# 不要裸 cp -r：它不看 .gitignore，会把 .workbuddy/（开发笔记）、dist/、outputs/ 一起拷进去
+rsync -a --exclude '.workbuddy/' --exclude 'dist/' --exclude 'outputs/' \
+      <本 skill 源目录> ~/.workbuddy/skills/dev-companion-skill
+
 python ~/.workbuddy/skills/dev-companion-skill/scripts/check_tree.py --selftest
 ```
 

@@ -1,6 +1,6 @@
 ---
 name: dev-companion-skill
-description: "Build a software project together with a beginner developer. Three capabilities: (A) always-on development status tree at dev-tree/TREE.md; (B) on demand plain-language explanation with no undefined jargon; (C) on demand action-first output shaping. Use when the user builds with an agent and asks 解释 / 看不懂 / 什么意思 / 用大白话 / 我是新手, says 直接给我下一步 / 别废话 / 太长了 / 开 adhd 模式, or wants a resumable plan that survives across sessions. Owns plain-language explanation even when nothing is being built - answer with B, no tree. Do NOT use for deciding scope or positioning, writing requirement cards, choosing technology, or producing design artifacts - those belong to project-positioning-skill, requirement-analysis-skill, and tech-design-skill respectively; UI prototypes belong to ui-prototype-skill. A UI prototype is a reviewed deliverable registered in .project/prototype/current.yaml, not a disposable script - route it to ui-prototype-skill. For genuinely disposable one-off scripts, answer but skip the tree."
+description: "Build a software project together with a beginner developer. Three capabilities: (A) always-on status tree at dev-tree/TREE.md; (B) plain-language explanation with no undefined jargon; (C) action-first output shaping. Use when the user builds with an agent and asks 解释 / 看不懂 / 什么意思 / 用大白话 / 我是新手, says 直接给我下一步 / 别废话 / 太长了 / 开 adhd 模式, or wants a resumable plan that survives across sessions, or asks 制定开发计划 / 排个任务顺序 / 分几期 (kickoff ordering when no dev-tree yet; requirement-level splitting belongs to requirement-analysis-skill). Owns plain-language explanation even when nothing is being built - answer with B, no tree. Do NOT use for deciding scope or positioning, writing requirement cards, choosing technology, or producing design artifacts - those belong to project-positioning-skill, requirement-analysis-skill, and tech-design-skill respectively; UI prototypes belong to ui-prototype-skill. A UI prototype is a reviewed deliverable registered in .project/prototype/current.yaml, not a disposable script - route it to ui-prototype-skill. For genuinely disposable one-off scripts, answer but skip the tree."
 agent_created: true
 ---
 
@@ -62,6 +62,8 @@ agent_created: true
 | 「做个能点的 demo / 画个原型」 | `ui-prototype-skill`，不是一次性脚本 |
 | 「这个需求该不该做 / 项目要不要升级定位」 | `project-positioning-skill` |
 | 「这个需求怎么写 / 验收标准」 | `requirement-analysis-skill` |
+| 「制定开发计划」「排个任务顺序」「分几期」 | **本 Skill**（H12：首次开工排里程碑，落到 `TREE.md` 第一版） |
+| 「把这个需求拆成几个需求」 | `requirement-analysis-skill`——那是**需求级**拆分，产物是子 REQ，不是实施任务 |
 
 **本 Skill 的 must_ask**：用户面临决策点时必须问（选哪个做法、先做哪个任务）——这是能力 A
 的地基，不问就没有可留痕的决策。其余信息一律从项目现状推断，推断不出来才问，且每问必带推荐值（H8）。
@@ -87,6 +89,7 @@ agent_created: true
 | H9 | **编号引用必须带锚点。** 引用节点 / 版本标签 / 候选 / `§x.y` 时，必须同时给出能定位到它的链接、全标题或归属；候选一律用 slug 命名（`302-redirect`），禁止「选 B」这种裸编号。详见 `references/tree-protocol.md` I6 |
 | H10 | **行动优先模式（C）下，进度与下一步必须来自树。** 进度行用 `check_tree.py --progress` 的输出（**复制，不要自己估也不要手抄路径**）；结尾那个「下一步」必须能在树上定位到。对不上就先更新树再回答。详见 `references/action-first-mode.md` |
 | H11 | **撤销不删历史。** 推翻已完成的决策时，原节点保持 `[x]`、原版本文档保留，只加撤销记录并开新节点。删掉它们等于伪造历史。**只有放弃尚未开工的候选才删除**（详见 `references/tree-protocol.md` 第 7 节） |
+| H12 | **首次开工先排初始序列。** 要开工且 `dev-tree/TREE.md` 不存在时，先按 `references/kickoff-plan.md` 排一版里程碑，问过用户并拿到答复后再继续。**已存在树就不排**——那等于造出第二份互相打架的计划 |
 
 ---
 
@@ -97,6 +100,7 @@ dev-companion-skill/                          # 本 skill
 ├── SKILL.md
 ├── references/
 │   ├── tree-protocol.md           # 能力 A 的完整协议（不变量、决策点、完成协议）
+│   ├── kickoff-plan.md            # 首次开工的里程碑规划（H12）
 │   ├── explain-mode.md            # 能力 B 的完整规范（含反模式清单与正反示例）
 │   └── action-first-mode.md       # 能力 C 的输出整形规则（脱胎于 i-have-adhd，MIT）
 ├── assets/
@@ -140,12 +144,37 @@ python ~/.workbuddy/skills/dev-companion-skill/scripts/check_tree.py --selftest 
 
 ---
 
+## 开局规划（仅首次开工）
+
+**触发条件**：用户要开工，且 `dev-tree/TREE.md` 不存在。已经有树 → **不做**（H12）。
+
+这一步填的缺口是：需求 Skill 只拆到需求级（子 REQ），而本 Skill 的树是随决策点生长的——
+中间没人把「多个需求 + 技术方案」排成带依赖的实施序列。
+
+1. **三档取输入**：上游契约文件（需求卡、接口契约，核对 `produced_by`）→ 用户原始输入 →
+   提问（仅在排序有实质分歧时问，≤ 3 题且带推荐值）。上游缺失不阻塞，但要写清少了什么。
+2. **排里程碑**：每期写清**可验证的产物**、**依赖**、**落到哪些 `REQ` / `IF`**。
+   排序判据：技术依赖 > 风险 > 用户价值。
+3. **落到树里**：写到 `TREE.md` 第一版与 `versions/001-*.md`——里程碑是顶层节点，
+   其下挂叶子任务。仍受 H2（待完成节点必须是叶子）与 H7（树里不写协议元信息）约束。
+4. **停下来问用户一次**，推荐值就是你排的这版。用户说「你看着办」→ 执行推荐值并在版本文档里
+   记一句「按推荐顺序开工，待用户确认」——**不许静默当成已确认**。
+
+**不估工期、人手、上线时间。** 想表达规模就写「这一期交付什么」，不写「要几天」。
+里程碑不超过 5 个——排太细会在第一轮就失效，剩下的做进去再长节点。
+
+初始序列不是契约：后面改顺序一律按 H2 / H11 走（推翻已开工的节点加撤销记录并开新节点，不删历史）。
+完整细节见 `references/kickoff-plan.md`。
+
+---
+
 ## 每次回复前的自检（Pre-reply Checklist）
 
 逐条过，不过就先补齐再回答：
 
 1. 本轮动过项目文件吗？→ 树和版本文档是否已反映？
 2. 本轮问了用户选择题吗？→ 那是决策点，用户回答后按下面的流程处理；**没回答就别先动树**。
+   （唯一例外：首次开工的开局规划，见 `references/kickoff-plan.md` 与 H12。）
 3. 有节点标了 `[x]` 吗？→ 完成证据填了吗？
 4. 跑 `check_tree.py` 了吗？→ 必须 PASS，或明确报告 FAIL 原因（H6）。
 5. **能力 B（大白话模式）已开启吗？** → 四段顺序对吗（结论 → 最小可运行代码 → 逐步说明 → 术语表）？新术语 ≤ 3 个？术语首次出现都带括号解释和类比了吗？代码能直接复制跑吗？
@@ -254,6 +283,7 @@ python ~/.workbuddy/skills/dev-companion-skill/scripts/check_tree.py --selftest 
 ## 详细协议
 
 - 能力 A 全部细节（书写契约、不变量推导、两种格式、边界记录）→ `references/tree-protocol.md`
+- 首次开工怎么排里程碑（三档输入、排序判据、不估工期、必须问一次）→ `references/kickoff-plan.md`
 - 能力 B 全部细节（四段结构、术语规则、反模式、正反示例）→ `references/explain-mode.md`
 - 能力 C 全部细节（十条输出整形规则、与状态树的三处裁决、反模式）→ `references/action-first-mode.md`
 - 撤销与回退（两种情况的区分、撤销流程、本 skill 不支持什么）→ `references/tree-protocol.md` 第 7 节
